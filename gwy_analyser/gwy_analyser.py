@@ -16,7 +16,7 @@ try:
     import gwyutils
 except ImportError:
     import sys
-    sys.path += ["/usr/share/gwyddion/pygwy", "/usr/local/share/gwyddion/pygwy","/usr/local/share/site-packages"]
+    sys.path += ["/usr/share/gwyddion/pygwy", "/usr/local/share/gwyddion/pygwy"]
     import gwy
     import gwyutils
 
@@ -212,3 +212,6 @@ class afmAnalyser:
             data_export['grain data'].append(grain_data)
             # http://gwyddion.net/documentation/head/pygwy/gwy.DataField-class.html#mark_extrema
         return data_export
+
+    def close_file(self):
+        gwy.gwy_app_data_browser_remove(self.data)
