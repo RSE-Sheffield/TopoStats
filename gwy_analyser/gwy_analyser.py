@@ -1,7 +1,15 @@
 #!/usr/bin/env python2
 """
 Use gwyddion to preprocess AFM images.
-Code based on https://github.com/afmstats/TopoStats
+
+FUNCTIONS STILL TO ADD
+- heightediting
+- double check remove(large/small)objects
+- grainthinning
+- boundbox
+- splitimage
+- savecroppedfiles
+
 """
 from __future__ import print_function
 
