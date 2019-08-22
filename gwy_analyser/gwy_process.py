@@ -95,13 +95,13 @@ if __name__ == "__main__":
         analyser.close_file()
 
     if args.save_all:
-        pd.DataFrame(data_exports).to_json('afm_data.json')
-        from pandas.io.json import json_normalize
-        fname = 'afm_data.h5'
-        for key, data in data_exports.items():
-            data = json_normalize(data)
-            data.keys()
-            pd.DataFrame(data).to_hdf(fname, key=key, format='fixed')
+        pd.DataFrame(json_normalize(data_exports)).to_json('gwy_analyser_data.json')
+        # from pandas.io.json import json_normalize
+        # fname = 'afm_data.h5'
+        # for key, data in data_exports.items():
+        #     data = json_normalize(data)
+        #     data.keys()
+        #     #pd.DataFrame(data).to_hdf(fname, key=key, format='fixed')
     #     with open(os.path.join(args.path, 'all_data.pkl'), 'w') as f:
     #         pickle.dump(data_exports, f, protocol=0)
 
