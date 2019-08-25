@@ -3,12 +3,16 @@ try:
     import gwy
 except ImportError:
     import sys
-    sys.path += ["/usr/share/gwyddion/pygwy", "/usr/local/Cellar/gwyddion/2.53_1/share/gwyddion/pygwy","/usr/local/Cellar/gwyddion/2.53_1/lib/python2.7/site-packages"]
+    sys.path += [
+        "/usr/share/gwyddion/pygwy",
+        "/usr/local/Cellar/gwyddion/2.53_1/share/gwyddion/pygwy",
+        "/usr/local/Cellar/gwyddion/2.53_1/lib/python2.7/site-packages"
+    ]
     import gwy
-    
+
 CLEANUP_METHODS = [
     "align_rows",
-    "level", # flatten the data
+    "level",  # flatten the data
     'flatten_base',
     'zero_mean',
     'scars_remove',
@@ -29,4 +33,4 @@ VALUES_TO_COMPUTE = {
     'curvature centre z': gwy.GRAIN_VALUE_CURVATURE_CENTER_Z,
     'pixel area': gwy.GRAIN_VALUE_PIXEL_AREA,
     'half heightarea': gwy.GRAIN_VALUE_HALF_HEIGHT_AREA,
-    }
+}

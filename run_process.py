@@ -12,9 +12,9 @@ import subprocess
 
 path = './data/'
 threshold = 3.0
-min_area=200e-9
-min_deviation=0.5
-max_deviation=1.5
+min_area = 200e-9
+min_deviation = 0.5
+max_deviation = 1.5
 
 command = [
     'python2', 'gwy_analyser/gwy_process.py', path,
