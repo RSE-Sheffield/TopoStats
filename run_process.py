@@ -1,14 +1,10 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 """
 Example script to run the gwyddion preprocessing
 and save the data in python3-compatible hickle (i.e. hdf5)
 """
 
-import os
-# import pickle
 import subprocess
-
-# import hickle
 
 path = './data/'
 threshold = 3.0
@@ -23,8 +19,3 @@ command = [
     '--min-deviation', str(min_deviation),
     '--max-deviation', str(max_deviation)]
 subprocess.call(command)
-
-# with open(os.path.join(path, 'all_data.pkl'), 'rb') as f:
-#     data = pickle.load(f, encoding='latin1')
-
-# hickle.dump(data, os.path.join(path,'afm-data.hkl'), mode='w', compression='lzf')

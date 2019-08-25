@@ -52,10 +52,6 @@ if __name__ == "__main__":
             dirname = os.path.join(os.path.dirname(spm_file), 'processed')
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            fname = os.path.join(dirname, name + '.pkl')
-            # if os.path.exists(fname) or os.path.exists(os.path.join(dirname, name + '.hkl')):
-            #     print(name, "already analysed")
-            #     continue
 
         try:
             analyser = afmAnalyser(spm_file, args.contour_length * 0.34e-9)
@@ -95,20 +91,3 @@ if __name__ == "__main__":
 
     if args.save_all:
         pd.DataFrame(json_normalize(data_exports)).to_json('gwy_analyser_data.json')
-        # from pandas.io.json import json_normalize
-        # fname = 'afm_data.h5'
-        # for key, data in data_exports.items():
-        #     data = json_normalize(data)
-        #     data.keys()
-        #     #pd.DataFrame(data).to_hdf(fname, key=key, format='fixed')
-    #     with open(os.path.join(args.path, 'all_data.pkl'), 'w') as f:
-    #         pickle.dump(data_exports, f, protocol=0)
-
-# fname = os.path.join(dirname, name + '.h5')
-# pd.DataFrame(data_export).to_hdf(fname, k=filename)
-# fname = os.path.join(dirname, name + '.npz')
-# np.savez_compressed(fname, **data_export)
-# # with open(fname, 'wb') as fout:
-#     # protocol 0 is small and uses large files but is most compatible
-#     # convert to python 3 hickle files after.
-#     pickle.dump(data_export, fout, protocol=0)
