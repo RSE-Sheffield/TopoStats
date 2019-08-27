@@ -3,11 +3,7 @@ try:
     import gwy
 except ImportError:
     import sys
-    sys.path += [
-        "/usr/share/gwyddion/pygwy",
-        "/usr/local/Cellar/gwyddion/2.53_1/share/gwyddion/pygwy",
-        "/usr/local/Cellar/gwyddion/2.53_1/lib/python2.7/site-packages"
-    ]
+    sys.path += ["/usr/share/gwyddion/pygwy", "/usr/local/share/gwyddion/pygwy"]
     import gwy
 
 CLEANUP_METHODS = [
