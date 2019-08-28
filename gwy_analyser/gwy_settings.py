@@ -8,7 +8,8 @@ except ImportError:
 
 CLEANUP_METHODS = [
     "align_rows",
-    "level",  # flatten the data
+    "level",  # flatten the data,
+    "polylevel",
     'flatten_base',
     'zero_mean',
     'scars_remove',
