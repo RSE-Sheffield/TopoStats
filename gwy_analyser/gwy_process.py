@@ -55,63 +55,39 @@ if __name__ == "__main__":
             dirname = os.path.join(os.path.dirname(spm_file), 'processed')
             if not os.path.exists(dirname):
                 os.makedirs(dirname)
-            fname = os.path.join(dirname, name + '.pkl')
-            # if os.path.exists(fname) or os.path.exists(os.path.join(dirname, name + '.hkl')):
-            #     print(name, "already analysed")
-            #     continue
-
         try:
             analyser = afmAnalyser(spm_file, args.contour_length * 0.34e-9)
             print('Analysing', os.path.basename(spm_file))
-            analysing = True
         except GError:
             print('ERROR:', os.path.basename(spm_file), 'contains no (importable) data... skipping')
             continue
 
-        if analysing:
-            analyser.choose_channels()  # right now just using the single channel
-            analyser.preprocess_image()
-            image_details = analyser.get_image_details()
+        analyser.choose_channels()  # right now just using the single channel
+        analyser.preprocess_image()
+        image_details = analyser.get_image_details()
 
-            mask, grains = analyser.find_grains(args.threshold, args.min_area)
-            median_pixel_area = analyser.find_median_pixel_area()
-            mask, grains = analyser.remove_objects(args.max_deviation, removal_type='max')
-            mask, grains = analyser.remove_objects(args.min_deviation, removal_type='min')
-            print('There were', max(grains), 'grains found')
+        mask, grains = analyser.find_grains(args.threshold, args.min_area)
+        median_pixel_area = analyser.find_median_pixel_area()
+        mask, grains = analyser.remove_objects(args.max_deviation, removal_type='max')
+        mask, grains = analyser.remove_objects(args.min_deviation, removal_type='min')
+        print('There were', max(grains), 'grains found')
 
-            grain_data = analyser.analyse_grains()
-            # skeleton, mask = analyser.thin_grains()  # skeletonizes
-            skeleton = None
-            cropped_ids, cropped_datafields = analyser.generate_cropped_datafields(args.crop_width)
+        grain_data = analyser.analyse_grains()
+        # skeleton, mask = analyser.thin_grains()  # skeletonizes
+        skeleton = None
+        cropped_ids, cropped_datafields = analyser.generate_cropped_datafields(args.crop_width)
 
-            try:
-                data_export = analyser.export_data()
-                if args.save_all:
-                    data_exports[name] = data_export
-                else:
-                    fname = os.path.join(dirname, name + '.json')
-                    pd.DataFrame(json_normalize(data_export)).to_json(fname)
-            except AttributeError:
-                print("ERROR: ", spm_file, "failed")
+        try:
+            data_export = analyser.export_data()
+            if args.save_all:
+                data_exports[name] = data_export
+            else:
+                fname = os.path.join(dirname, name + '.json')
+                pd.DataFrame(json_normalize(data_export)).to_json(fname)
+        except AttributeError:
+            print("ERROR: ", spm_file, "failed")
 
         analyser.close_file()
 
     if args.save_all:
         pd.DataFrame(json_normalize(data_exports)).to_json('gwy_analyser_data.json')
-        # from pandas.io.json import json_normalize
-        # fname = 'afm_data.h5'
-        # for key, data in data_exports.items():
-        #     data = json_normalize(data)
-        #     data.keys()
-        #     #pd.DataFrame(data).to_hdf(fname, key=key, format='fixed')
-        # with open(os.path.join(args.path, 'all_data.pkl'), 'w') as f:
-        #     pickle.dump(data_exports, f, protocol=0)
-
-        # fname = os.path.join(dirname, name + '.h5')
-        # pd.DataFrame(data_export).to_hdf(fname, k=filename)
-        # fname = os.path.join(dirname, name + '.npz')
-        # np.savez_compressed(fname, **data_export)
-        # # with open(fname, 'wb') as fout:
-        #     # protocol 0 is small and uses large files but is most compatible
-        #     # convert to python 3 hickle files after.
-        #     pickle.dump(data_export, fout, protocol=0)
