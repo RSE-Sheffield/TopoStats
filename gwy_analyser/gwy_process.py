@@ -90,4 +90,5 @@ if __name__ == "__main__":
         analyser.close_file()
 
     if args.save_all:
-        pd.DataFrame(json_normalize(data_exports)).to_json('gwy_analyser_data.json')
+        # write to a jsonlines file
+        pd.DataFrame(json_normalize(data_exports)).to_json('gwy_analyser_data.jsonl', orient ='records', lines=True)
