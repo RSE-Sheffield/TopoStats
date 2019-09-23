@@ -19,6 +19,7 @@ from pandas.io.json import json_normalize
 
 from glib import GError
 from gwy_analyser import afmAnalyser
+from pathlib2 import Path
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -33,21 +34,23 @@ if __name__ == "__main__":
     parser.add_argument("--save-all", help='create a single pkl file', action='store_true')
 
     args = parser.parse_args()
-    if not args.path.split('.')[-1] in args.filetypes.strip('.').split(','):
-        spm_files = []
-        for dirpath, subdirs, filenames in os.walk(args.path):
-            for filename in filenames:
-                if os.path.splitext(filename)[1][1:] in args.filetypes.split(',') and filename[0] != '.':
-                    spm_files.append(os.path.join(dirpath, filename))
-        print(len(spm_files), "files found")
-    else:
+
+    # Find files in directory if given
+    path = Path(args.path)
+    if path.is_file():
         spm_files = [args.path]
         args.path = os.path.dirname(args.path)
+    else:
+        spm_files = []
+        for file_ext in args.filetypes.split(','):
+            for filename in path.glob('*.' + file_ext):
+                spm_files.append(str(filename.absolute()))
+        print(len(spm_files), "files found")
 
     data_exports = {}
 
     for i, spm_file in enumerate(spm_files):
-        name =  '.'.join(os.path.basename(spm_file).split('.')[:-1])
+        name = '.'.join(os.path.basename(spm_file).split('.')[:-1])
         if not args.save_all:
             dirname = os.path.join(os.path.dirname(spm_file), 'processed')
             if not os.path.exists(dirname):
@@ -56,15 +59,15 @@ if __name__ == "__main__":
             # if os.path.exists(fname) or os.path.exists(os.path.join(dirname, name + '.hkl')):
             #     print(name, "already analysed")
             #     continue
-        
+
         try:
-            analyser = afmAnalyser(spm_file, args.contour_length*.34e-9)
+            analyser = afmAnalyser(spm_file, args.contour_length * 0.34e-9)
             print('Analysing', os.path.basename(spm_file))
             analysing = True
         except GError:
             print('ERROR:', os.path.basename(spm_file), 'contains no (importable) data... skipping')
             continue
-        
+
         if analysing:
             analyser.choose_channels()  # right now just using the single channel
             analyser.preprocess_image()
@@ -76,7 +79,7 @@ if __name__ == "__main__":
             mask, grains = analyser.remove_objects(args.min_deviation, removal_type='min')
             print('There were', max(grains), 'grains found')
 
-            grain_data = analyser.analyse_grains()         
+            grain_data = analyser.analyse_grains()
             # skeleton, mask = analyser.thin_grains()  # skeletonizes
             skeleton = None
             cropped_ids, cropped_datafields = analyser.generate_cropped_datafields(args.crop_width)
@@ -88,7 +91,6 @@ if __name__ == "__main__":
                 else:
                     fname = os.path.join(dirname, name + '.json')
                     pd.DataFrame(json_normalize(data_export)).to_json(fname)
-                    
             except AttributeError:
                 print("ERROR: ", spm_file, "failed")
 
@@ -102,16 +104,14 @@ if __name__ == "__main__":
         #     data = json_normalize(data)
         #     data.keys()
         #     #pd.DataFrame(data).to_hdf(fname, key=key, format='fixed')
-    #     with open(os.path.join(args.path, 'all_data.pkl'), 'w') as f:
-    #         pickle.dump(data_exports, f, protocol=0)
+        # with open(os.path.join(args.path, 'all_data.pkl'), 'w') as f:
+        #     pickle.dump(data_exports, f, protocol=0)
 
-
-
-# fname = os.path.join(dirname, name + '.h5')
-                # pd.DataFrame(data_export).to_hdf(fname, k=filename)
-                # fname = os.path.join(dirname, name + '.npz')
-                # np.savez_compressed(fname, **data_export)
-                # # with open(fname, 'wb') as fout:
-                #     # protocol 0 is small and uses large files but is most compatible
-                #     # convert to python 3 hickle files after.
-                #     pickle.dump(data_export, fout, protocol=0)  
+        # fname = os.path.join(dirname, name + '.h5')
+        # pd.DataFrame(data_export).to_hdf(fname, k=filename)
+        # fname = os.path.join(dirname, name + '.npz')
+        # np.savez_compressed(fname, **data_export)
+        # # with open(fname, 'wb') as fout:
+        #     # protocol 0 is small and uses large files but is most compatible
+        #     # convert to python 3 hickle files after.
+        #     pickle.dump(data_export, fout, protocol=0)
