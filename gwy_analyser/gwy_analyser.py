@@ -32,13 +32,13 @@ except ImportError:
 class afmAnalyser:
     def __init__(self, filename, contour_length):
         self.filename = filename
-        self.data =  gwy.gwy_file_load(self.filename, gwy.RUN_NONINTERACTIVE)
+        self.data = gwy.gwy_file_load(self.filename, gwy.RUN_NONINTERACTIVE)
         gwy.gwy_app_data_browser_add(self.data)
 
         self.contour_length = contour_length
 
         self.settings = gwy.gwy_app_settings_get()  # from ~/.gwyddion/settings
-        self.settings["/module/pixmap/ztype"] = 0  # Turn colour bar off 
+        self.settings["/module/pixmap/ztype"] = 0  # Turn colour bar off
         # Define the settings for image processing functions e.g. align rows here
         self.settings['/module/linematch/method'] = 1  # uses median
         self.settings["/module/linematch/max_degree"] = 0
@@ -76,7 +76,7 @@ class afmAnalyser:
                 'x_res': self.datafield.get_dx(),
                 'y_res': self.datafield.get_dy()
             })
-            
+
         return self.image_details
 
     def find_grains(self, threshold, min_area):
@@ -120,26 +120,26 @@ class afmAnalyser:
         mask2.grains_remove_by_size(size_to_remove)
         if type == 'max':
             mask2.grains_invert()
-        
+
         self.mask.grains_intersect(mask2)
         self.grains = self.mask.number_grains()
         return self.mask, self.grains
-    
+
     def analyse_grains(self, values_to_compute=VALUES_TO_COMPUTE, grains=None, datafield=None, as_list=False):
         grains = grains if grains else self.grains
         datafield = datafield if datafield else self.datafield
         # Do not add the 0th value in all arrays - this corresponds to the background
-        self.grain_data = {stat: datafield.grains_get_values(grains, gwy_key)[1:] \
-                        for stat, gwy_key in values_to_compute.iteritems()}
+        self.grain_data = {stat: datafield.grains_get_values(grains, gwy_key)[1:]
+                           for stat, gwy_key in values_to_compute.iteritems()}
 
         if as_list:
-            num_grains = len(set(grains)) - 1 # first grain is ignored
-            self.grain_data = [{stat: self.grain_data[stat][i] for stat in values_to_compute.keys()} for i in range(num_grains)] 
+            num_grains = len(set(grains)) - 1  # first grain is ignored
+            self.grain_data = [{stat: self.grain_data[stat][i] for stat in values_to_compute.keys()} for i in range(num_grains)]
         return self.grain_data
-    
+
     def generate_cropped_datafields(self, crop_width, grains=None, return_image=False):
         grains = grains if grains else self.grains
-        
+
         original_ids = gwy.gwy_app_data_browser_get_data_ids(self.data)
 
         bboxes = self.datafield.get_grain_bounding_boxes(grains)
@@ -158,11 +158,11 @@ class afmAnalyser:
                 continue  # skip first grain (background)
             px_center_x = int(center_x / self.image_details['x_res'])
             px_center_y = int(center_y / self.image_details['y_res'])
-            ULcol = px_center_x - crop_width if (px_center_x - crop_width) > 0  else 0
+            ULcol = px_center_x - crop_width if (px_center_x - crop_width) > 0 else 0
             ULrow = px_center_y - crop_width if (px_center_y - crop_width) > 0 else 0
             BRcol = px_center_x + crop_width if (px_center_x + crop_width) < self.image_details['x_px'] else self.image_details['x_px']
             BRrow = px_center_y + crop_width if (px_center_y + crop_width) < self.image_details['y_px'] else self.image_details['y_px']
-            
+
             # add cropped datafield to active container
             cropped_datafield = self.datafield.duplicate()
             cropped_datafield.resize(ULcol, ULrow, BRcol, BRrow)
@@ -178,19 +178,19 @@ class afmAnalyser:
 
         # # Generate list of datafields including cropped fields
         # self.cropped_ids = gwy.gwy_app_data_browser_get_data_ids(self.data)
-        
+
         return self.cropped_ids, self.cropped_datafields
-    
+
     def thin_grains(self, mask=None):
         # Calculate gaussian width in pixels from real value using pixel size
         mask = mask if mask else self.mask
         old_mask = deepcopy(gwyutils.data_field_data_as_array(mask))
         guassian_size = 2e-9 / self.image_details['x_res']
         self.datafield.filter_gaussian(guassian_size)
-        
+
         mask.grains_thin()  # skeletonizes to get traces
-        return  mask, old_mask
-    
+        return mask, old_mask
+
     # def get_image(self, datafield):
     #     get_subimages
 
@@ -203,7 +203,7 @@ class afmAnalyser:
         mask = mask if mask else self.mask
         if isinstance(mask, (np.ndarray, np.generic)):
             data_export['mask'] = mask
-        elif mask:    
+        elif mask:
             data_export['mask'] = gwyutils.data_field_data_as_array(mask)
         if skeleton:
             data_export['skeleton'] = gwyutils.data_field_data_as_array(skeleton)
